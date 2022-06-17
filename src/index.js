@@ -49,12 +49,14 @@ app.use("/api/departments", departmentRoutes);
 app.use("/api/licenses", licensesRoutes);
 
 app.use(ErrorMiddleware);
-
+app.get("/",(req,res)=>{
+  res.send("Working ")
+})
 app.listen(PORT, async () => {
   try {
     await connectDB(process.env.URI);
     console.log("Database connected!");
-    console.log(`Server running at http://localhost:${PORT}`);
+    console.log(`Server running at port => ${PORT}`);
   } catch (err) {
     console.error("---------------------");
     console.error(err);
