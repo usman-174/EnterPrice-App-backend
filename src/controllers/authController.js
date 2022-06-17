@@ -83,7 +83,7 @@ const registerUser = catchAsyncError(async (req, res, next) => {
   });
 
   const msg = {
-    to: "hellmughal123@gmail.com",
+    to: email,
     from: "il_matamorosc@unicah.edu", // Use the email address or domain you verified above
     subject: "Your Credentials.",
     text: "You account has been created",
