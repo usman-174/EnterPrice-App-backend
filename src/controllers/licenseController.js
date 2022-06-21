@@ -4,8 +4,7 @@ import { errorHandler } from "../utils/errorHandler.js";
 // Add Single License
 
 const addLicense = catchAsyncError(async (req, res, next) => {
-  
-  const license = new License({ ...req.body,user:res?.locals.user._id });
+  const license = new License({ ...req.body, user: res?.locals.user._id });
 
   const saved = await license.save();
   if (!saved)
@@ -15,11 +14,11 @@ const addLicense = catchAsyncError(async (req, res, next) => {
 // Update Single License
 const updateLicense = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
- 
+
   const updated = await License.findByIdAndUpdate(
     id,
     { ...req.body },
-    { new: true,runValidators:true }
+    { new: true, runValidators: true }
   );
   if (!updated)
     return next(new errorHandler("Failed to update the License", 400));
@@ -33,21 +32,24 @@ const removeLicense = catchAsyncError(async (req, res) => {
 });
 
 // GET ALL LICENSES
-const getLicense = catchAsyncError(async (req, res, next) => {
-  const { department,email } = res.locals.user;
-  const licenses = await License.find({ department }).populate([
-    "user",
-    "department",
-  ]);
+const getLicense = catchAsyncError(async (_, res) => {
+  const { department, role, manageList } = res.locals.user;
+  let licenses = [];
+  if (role !== "director") {
+    licenses = await License.find({ department }).populate([
+      "user",
+      "department",
+    ]);
+  } else {
+    licenses = await License.find({ department: { $in: manageList } }).populate(
+      ["user", "department"]
+    );
+  }
   return res.status(200).json({ success: true, licenses });
 });
 // GET ALL LICENSES
 const getAdminLicense = catchAsyncError(async (req, res, next) => {
-
-  const licenses = await License.find({}).populate([
-    "user",
-    "department",
-  ]);
+  const licenses = await License.find({}).populate(["user", "department"]);
   return res.status(200).json({ success: true, licenses });
 });
 // GET SINGLE LICENSE
@@ -58,4 +60,11 @@ const singleLicense = catchAsyncError(async (req, res, next) => {
   return res.status(200).json({ success: true, license });
 });
 
-export { singleLicense, addLicense, updateLicense,getAdminLicense, removeLicense, getLicense };
+export {
+  singleLicense,
+  addLicense,
+  updateLicense,
+  getAdminLicense,
+  removeLicense,
+  getLicense,
+};

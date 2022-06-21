@@ -1,17 +1,19 @@
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import dotenv from "dotenv";
 import express from "express";
 import morgan from "morgan";
-import dotenv from "dotenv";
-import cookieParser from "cookie-parser";
 import ErrorMiddleware from "./middlewares/errors.js";
-import { connectDB } from "./utils/database.js";
 import authRoutes from "./routes/auth.js";
 import departmentRoutes from "./routes/department.js";
+import donorRoutes from "./routes/donor.js";
 import licensesRoutes from "./routes/license.js";
-import cors from "cors";
-
+import supplierRoutes from "./routes/supplier.js";
+import { connectDB } from "./utils/database.js";
 if (process.env.NODE_ENV !== "production") {
   dotenv.config();
 }
+
 const app = express();
 const PORT = process.env.PORT;
 
@@ -47,16 +49,39 @@ process.on("uncaughtException", (err) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/departments", departmentRoutes);
 app.use("/api/licenses", licensesRoutes);
+app.use("/api/donors", donorRoutes);
+app.use("/api/suppliers", supplierRoutes);
 
 app.use(ErrorMiddleware);
-app.get("/",(req,res)=>{
-  res.send("Working ")
-})
+app.get("/", (req, res) => {
+  res.send("Working ");
+});
 app.listen(PORT, async () => {
   try {
     await connectDB(process.env.URI);
     console.log("Database connected!");
     console.log(`Server running at port => ${PORT}`);
+
+    const options = {
+      from: "hellmughal123@gmail.com",
+      to: "211370132@gift.edu.pk",
+      subject: "Just checking",
+      text: "Just messing around.",
+    };
+
+    // for (let i = 0; i < 6; i++) {
+    //   const saveDonor = async()=>{
+    //     const donor = new Donor({name:faker.name.firstName("male")})
+    //     await donor.save()
+    //   }
+    //   const saveSupploer = async()=>{
+    //     const supplier = new Supplier({name:faker.name.jobArea()})
+    //     await supplier.save()
+    //   }
+    //   saveDonor()
+    //   saveSupploer()
+    //   console.log({i});
+    // }
   } catch (err) {
     console.error("---------------------");
     console.error(err);

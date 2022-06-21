@@ -12,7 +12,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@sendgrid/mail": "^7.7.0",
     "bcryptjs": "^2.4.3",
     "cookie": "^0.5.0",
     "cookie-parser": "^1.4.6",
@@ -20,13 +19,16 @@
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
     "generate-password": "^1.7.0",
+    "googleapis": "^103.0.0",
     "jsonwebtoken": "^8.5.1",
     "moment": "^2.29.3",
     "mongoose": "^6.3.4",
     "morgan": "^1.10.0",
+    "nodemailer": "^6.7.5",
     "validator": "^13.7.0"
   },
   "devDependencies": {
+    "@faker-js/faker": "^7.2.0",
     "nodemon": "^2.0.16"
   }
 }
