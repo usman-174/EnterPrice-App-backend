@@ -19,7 +19,6 @@
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
     "generate-password": "^1.7.0",
-    "googleapis": "^103.0.0",
     "jsonwebtoken": "^8.5.1",
     "moment": "^2.29.3",
     "mongoose": "^6.3.4",
