@@ -22,11 +22,11 @@ const router = Router();
 router.post(
   "/register",
   SetAuthUser,
-  // authMiddleware,
-  // authorizeRoles("admin"),
+  authMiddleware,
+  authorizeRoles("admin"),
   registerUser
 );
-router.post("/login", SetAuthUser, login);
+router.post("/login", login);
 
 router.put(
   "/:id",
