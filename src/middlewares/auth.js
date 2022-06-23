@@ -10,12 +10,11 @@ export const SetAuthUser = catchAsyncError(async (req, res, next) => {
   }
 
   const decoded = Jwt.verify(token, String(process.env.JWT_SECRET));
-
+  console.log({ decoded });
   if (!decoded) {
-
     return next();
   }
-  const user = await User.findById(decoded?.id  );
+  const user = await User.findById(decoded?.id);
 
   res.locals.user = user;
 

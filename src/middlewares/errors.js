@@ -24,12 +24,12 @@ export default (err,__,res,_) =>{
         } 
         if(err.name ==='JsonWebTokenError'){
             
-            const message = "Invalid JSON WEB TOKEN.Try Again!!"
+            const message = "Invalid JSON WEB TOKEN.Try Again!!One"
             error = new errorHandler(message ,400)
         } 
         if(err.name ==='TokenExpiredError'){
             
-            const message = "Expired JSON WEB TOKEN.Try Again!!"
+            const message = "Expired JSON WEB TOKEN.Try Again!!Two"
             error = new errorHandler(message ,400)
         }
         if(err.code===11000 || (err.message && err.message.includes('duplicate key error collection'))){
