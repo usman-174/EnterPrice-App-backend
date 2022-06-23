@@ -64,11 +64,11 @@ const LicenseSchema = new mongoose.Schema(
     },
     supplier: {
       type: String,
-      required: [true, "Please Enter a valid Supplier Name"],
+     
     },
     supplierContact: {
       type: String,
-      required: [true, "Please Enter a valid Supplier Contact"],
+    
     },
 
     supportTime: {

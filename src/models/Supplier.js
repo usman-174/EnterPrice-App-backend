@@ -6,10 +6,17 @@ const SupplierSchema = new mongoose.Schema(
       type: String,
       trim: true,
       unique: true,
-    
+
       required: [true, "Please enter Supplier Name."],
     },
-   
+    contact: {
+      type: String,
+    },
+    url: {
+      type: String,
+      trim: true,
+      unique: true,
+    },
   },
   { timestamps: true }
 );
