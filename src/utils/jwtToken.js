@@ -24,17 +24,16 @@ export const sendToken = (user, statusCode, res) => {
     .json({ success: true, user });
 };
 export const removeToken = (res) => {
-  // return res
-  //   .cookie("token", "", {
-  //     expires: new Date(0),
-  //     maxAge: 0,
-  //     httpOnly: true,
-  //     sameSite: "none",
-  //     secure: process.env.NODE_ENV === "production" ? true : false,
-  //     path: "/",
-  //   })
-  //   .json({ success: true });
-  res.clearCookie("token")
- res.json({success:true})
- return res.end()
+ return res
+    .cookie("token", "", {
+      expires: new Date(0),
+      maxAge: 0,
+      httpOnly: true,
+      sameSite: "none",
+      secure: process.env.NODE_ENV === "production" ? true : false,
+      path: "/",
+    })
+    .json({ success: true });
+
+ 
 };
