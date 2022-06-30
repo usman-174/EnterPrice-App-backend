@@ -28,9 +28,7 @@ const UserSchema = new mongoose.Schema(
         ref: "Department",
       },
     ],
-    directions: {
-      type : String
-    },
+  
     role: {
       type: String,
       default: "user",
@@ -49,7 +47,7 @@ const UserSchema = new mongoose.Schema(
 UserSchema.pre("init", async function (document) {
   if (document.role !== "director") {
     document.managelist = undefined;
-    document.directions = undefined;
+    
 
   } else if (document.role == "director" || document.role === "admin") {
     document.department = undefined;

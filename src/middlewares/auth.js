@@ -13,7 +13,7 @@ export const SetAuthUser = catchAsyncError(async (req, res, next) => {
   if (!decoded) {
     return next();
   }
-  const user = await User.findById(decoded?.id);
+  const user = await User.findById(decoded?.id).populate("manageList");
 
   res.locals.user = user;
 

@@ -18,22 +18,6 @@ const getAllDirectors = catchAsyncError(async (req, res, next) => {
   const directors = await User.find({ role: "director" }).populate(
     "manageList"
   );
-  for (let i = 0; i < directors.length; ) {
-    let manageList = [];
-    const director = directors[i];
-    const directions = JSON.parse(director.directions).map((x) => x.name);
-    for (let j = 0; j < directions.length; ) {
-      const direction = directions[j];
-      const departments = await Department.find({ direction });
-
-      if (departments.length) {
-        manageList = [...manageList, ...departments];
-        j++;
-      }
-    }
-    directors[i].manageList = manageList;
-    i++;
-  }
   return res.status(200).json({ success: true, directors });
 });
 
@@ -137,21 +121,16 @@ const registerUser = catchAsyncError(async (req, res, next) => {
 });
 // ADMIN CREATE Director
 const createDirector = catchAsyncError(async (req, res, next) => {
-  const { email, username, manageList, directions } = req.body;
-  const user = new User({ email, username, role: "director", directions });
+  const { email, username, manageList } = req.body;
+  const user = new User({ email, username,manageList, role: "director" });
   const pass = generator.generate({
-    length: 8,
-    symbols: true,
+    length: 6,
+    symbols: false,
     numbers: true,
   });
-  // const pass = "test123";
   user.password = bcryptjs.hashSync(pass);
-  if (manageList?.length) {
-    // manageList.forEach((val) => {
-    user.manageList = manageList;
-    // });
-  }
-  console.log({ user });
+ 
+  
   const saved = await user.save();
   if (!saved)
     return next(new errorHandler("Failed to create the director.", 400));
@@ -202,22 +181,8 @@ const removeUser = catchAsyncError(async (req, res) => {
   return res.status(200).json({ success: true });
 });
 const getUser = catchAsyncError(async(_, res) => {
-  const {user} = res.locals
-  if(user.role === "director"){
-    let manageList= []
-      const directions = JSON.parse(user.directions).map((x) => x.name);
-      for (let j = 0; j < directions.length; ) {
-        const direction = directions[j];
-        const departments = await Department.find({ direction });
+
   
-        if (departments.length) {
-          manageList = [...manageList, ...departments];
-          j++;
-        }
-      }
-      user.manageList = manageList;
-     
-  }
   return res.status(200).json(res?.locals.user);
 });
 const changePassword = catchAsyncError(async (req, res, next) => {
