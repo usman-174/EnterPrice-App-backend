@@ -9,7 +9,7 @@ export const SetAuthUser = catchAsyncError(async (req, res, next) => {
     return next();
   }
 
-  const decoded = Jwt.verify(token, String(process.env.JWT_SECRET));
+  const decoded = Jwt.verify(token,String(process.env.JWT_SECRET)||"SECRET_XXX");
   if (!decoded) {
     return next();
   }

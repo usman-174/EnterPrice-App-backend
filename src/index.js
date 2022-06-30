@@ -4,11 +4,15 @@ import dotenv from "dotenv";
 import express from "express";
 import morgan from "morgan";
 import ErrorMiddleware from "./middlewares/errors.js";
+import User from "./models/User.js";
 import authRoutes from "./routes/auth.js";
 import departmentRoutes from "./routes/department.js";
 import donorRoutes from "./routes/donor.js";
+import directionRoutes from "./routes/direction.js";
+
 import licensesRoutes from "./routes/license.js";
 import supplierRoutes from "./routes/supplier.js";
+import { makeAdmin } from "./utils/createAdmin.js";
 import { connectDB } from "./utils/database.js";
 if (process.env.NODE_ENV !== "production") {
   dotenv.config();
@@ -50,6 +54,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/departments", departmentRoutes);
 app.use("/api/licenses", licensesRoutes);
 app.use("/api/donors", donorRoutes);
+app.use("/api/directions", directionRoutes);
+
 app.use("/api/suppliers", supplierRoutes);
 
 app.use(ErrorMiddleware);
@@ -62,26 +68,13 @@ app.listen(PORT, async () => {
     console.log("Database connected!");
     console.log(`Server running at port => ${PORT}`);
 
-    const options = {
-      from: "hellmughal123@gmail.com",
-      to: "211370132@gift.edu.pk",
-      subject: "Just checking",
-      text: "Just messing around.",
-    };
+    const anyAdmin = await User.find({role:"admin"})
+    
+    if(!anyAdmin?.length){
+      makeAdmin(User)
+    }
 
-    // for (let i = 0; i < 6; i++) {
-    //   const saveDonor = async()=>{
-    //     const donor = new Donor({name:faker.name.firstName("male")})
-    //     await donor.save()
-    //   }
-    //   const saveSupploer = async()=>{
-    //     const supplier = new Supplier({name:faker.name.jobArea()})
-    //     await supplier.save()
-    //   }
-    //   saveDonor()
-    //   saveSupploer()
-    //   console.log({i});
-    // }
+   
   } catch (err) {
     console.error("---------------------");
     console.error(err);

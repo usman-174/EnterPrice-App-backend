@@ -15,6 +15,7 @@ const departmentSchema = new mongoose.Schema(
       minlength: [15, "Description length must be greater than 15 characters."],
       required: [true, "Please enter Department Description."],
     },
+    
     direction: {
       type: String,
       trim: true,

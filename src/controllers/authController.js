@@ -1,11 +1,10 @@
-import catchAsyncError from "../middlewares/catchAsyncError.js";
-import { errorHandler } from "../utils/errorHandler.js";
-import { removeToken, sendToken } from "../utils/jwtToken.js";
 import bcryptjs from "bcryptjs";
 import generator from "generate-password";
-import User from "../models/User.js";
+import catchAsyncError from "../middlewares/catchAsyncError.js";
 import Department from "../models/Department.js";
-import nodemailer from "nodemailer";
+import User from "../models/User.js";
+import { errorHandler } from "../utils/errorHandler.js";
+import { removeToken, sendToken } from "../utils/jwtToken.js";
 import { sendEmail } from "../utils/transport.js";
 
 // GET ALL USERS
@@ -19,6 +18,22 @@ const getAllDirectors = catchAsyncError(async (req, res, next) => {
   const directors = await User.find({ role: "director" }).populate(
     "manageList"
   );
+  for (let i = 0; i < directors.length; ) {
+    let manageList = [];
+    const director = directors[i];
+    const directions = JSON.parse(director.directions).map((x) => x.name);
+    for (let j = 0; j < directions.length; ) {
+      const direction = directions[j];
+      const departments = await Department.find({ direction });
+
+      if (departments.length) {
+        manageList = [...manageList, ...departments];
+        j++;
+      }
+    }
+    directors[i].manageList = manageList;
+    i++;
+  }
   return res.status(200).json({ success: true, directors });
 });
 
@@ -26,6 +41,7 @@ const getAllDirectors = catchAsyncError(async (req, res, next) => {
 const updateUser = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
   const { password } = req.body;
+
   let user;
   if (password) {
     const hashed = bcryptjs.hashSync(password);
@@ -66,6 +82,7 @@ const login = catchAsyncError(async (req, res, next) => {
 const registerUser = catchAsyncError(async (req, res, next) => {
   const { username, email, departmentId, role, seeOnly } = req.body;
   const fields = { username, email, role };
+
   if (role === "user") {
     const deptFound = await Department.findOne({ id: departmentId });
     if (!deptFound)
@@ -81,6 +98,7 @@ const registerUser = catchAsyncError(async (req, res, next) => {
   if (role !== "director " && role !== "admin" && seeOnly) {
     fields.seeOnly = true;
   }
+
   const user = new User(fields);
   const pass = generator.generate({
     length: 8,
@@ -119,8 +137,8 @@ const registerUser = catchAsyncError(async (req, res, next) => {
 });
 // ADMIN CREATE Director
 const createDirector = catchAsyncError(async (req, res, next) => {
-  const { email, username, manageList } = req.body;
-  const user = new User({ email, username, role: "director" });
+  const { email, username, manageList, directions } = req.body;
+  const user = new User({ email, username, role: "director", directions });
   const pass = generator.generate({
     length: 8,
     symbols: true,
@@ -183,7 +201,23 @@ const removeUser = catchAsyncError(async (req, res) => {
 
   return res.status(200).json({ success: true });
 });
-const getUser = catchAsyncError((_, res) => {
+const getUser = catchAsyncError(async(_, res) => {
+  const {user} = res.locals
+  if(user.role === "director"){
+    let manageList= []
+      const directions = JSON.parse(user.directions).map((x) => x.name);
+      for (let j = 0; j < directions.length; ) {
+        const direction = directions[j];
+        const departments = await Department.find({ direction });
+  
+        if (departments.length) {
+          manageList = [...manageList, ...departments];
+          j++;
+        }
+      }
+      user.manageList = manageList;
+     
+  }
   return res.status(200).json(res?.locals.user);
 });
 const changePassword = catchAsyncError(async (req, res, next) => {
