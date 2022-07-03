@@ -6,7 +6,7 @@ const departmentSchema = new mongoose.Schema(
       type: String,
       trim: true,
       unique: true,
-      maxLength: [30, "Username cannot exceed 30 characters"],
+    
       required: [true, "Please enter Department Name."],
     },
     description: {
