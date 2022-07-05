@@ -51,7 +51,7 @@ const login = catchAsyncError(async (req, res, next) => {
 
   const user = await User.findOne({ email })
     .select("+password")
-    .populate("department");
+    .populate("department manageList");
 
   if (!user) return next(new errorHandler("User not found", 400));
 
