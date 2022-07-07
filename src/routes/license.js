@@ -1,5 +1,13 @@
 import { Router } from "express";
-import { addLicense, getAdminLicense,getLicense, removeLicense, singleLicense, updateLicense } from "../controllers/licenseController.js";
+import {
+  addLicense,
+  notifyExpiredLicenses,
+  getAdminLicense,
+  getLicense,
+  removeLicense,
+  singleLicense,
+  updateLicense,
+} from "../controllers/licenseController.js";
 
 import {
   authMiddleware,
@@ -8,25 +16,23 @@ import {
 } from "../middlewares/auth.js";
 
 const router = Router();
-router.post("/", SetAuthUser,
- // authMiddleware,
-  // authorizeRoles("admin"),
-   addLicense);
+router.post(
+  "/",
+  SetAuthUser,
+  authMiddleware,
+
+  addLicense
+);
 router.put(
   "/:id",
   SetAuthUser,
-  // authMiddleware,
-  // authorizeRoles("admin"),
+  authMiddleware,
+
   updateLicense
 );
-router.delete(
-  "/:id",
-  SetAuthUser,
-  // authMiddleware,
-  // authorizeRoles("admin"),
-  removeLicense
-);
-router.get("/", SetAuthUser, getLicense);
-router.get("/all",SetAuthUser,getAdminLicense)
+router.delete("/:id", SetAuthUser, authMiddleware, removeLicense);
+router.post("/notify", SetAuthUser, authMiddleware,authorizeRoles("admin"), notifyExpiredLicenses);
+router.get("/", SetAuthUser, authMiddleware, getLicense);
+router.get("/all", SetAuthUser, authMiddleware,authorizeRoles("admin"), getAdminLicense);
 router.get("/:id", SetAuthUser, singleLicense);
 export default router;

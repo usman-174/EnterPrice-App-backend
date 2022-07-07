@@ -1,5 +1,8 @@
 import catchAsyncError from "../middlewares/catchAsyncError.js";
 import License from "../models/License.js";
+import User from "../models/User.js";
+import { sendEmail } from "../utils/transport.js";
+
 import { errorHandler } from "../utils/errorHandler.js";
 // Add Single License
 
@@ -59,6 +62,44 @@ const singleLicense = catchAsyncError(async (req, res, next) => {
   if (!license) return next(new errorHandler("License not found", 400));
   return res.status(200).json({ success: true, license });
 });
+const notifyExpiredLicenses = catchAsyncError(async (req, res, next) => {
+  const { licenses } = req.body;
+  let success = true;
+
+  const admins = await User.find({ role: "admin" });
+  if (admins.length && licenses.length) {
+    for (let adminIndex = 0; adminIndex < admins.length; adminIndex++) {
+      const admin = admins[adminIndex];
+      for (
+        let licenseIndex = 0;
+        licenseIndex < licenses.length;
+        licenseIndex++
+      ) {
+        const license = licenses[licenseIndex];
+        const msg = {
+          to: admin.email,
+          from: "il_matamorosc@unicah.edu", // Use the email address or domain you verified above
+          subject: "License Expiring",
+          text: `License ${license.name} is going to expire in 7 days.`,
+          html: `<p>
+                  <h3>Name : ${license.name}</h3>  
+                  </br>
+                  <h3>Id : ${license._id}</h3>  
+                  </br>
+                  <h3>Department : ${license.department?.name}</h3>  
+                </p>`,
+        };
+      
+       
+        sendEmail(msg);
+      }
+    }
+  } else {
+    success = false;
+  }
+
+  return res.json({ success });
+});
 
 export {
   singleLicense,
@@ -67,4 +108,6 @@ export {
   getAdminLicense,
   removeLicense,
   getLicense,
+  notifyExpiredLicenses,
 };
+
