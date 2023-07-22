@@ -1,4 +1,5 @@
-import Jwt from "jsonwebtoken";
+
+import jwt from "jsonwebtoken";
 import { errorHandler } from "../utils/errorHandler.js";
 import catchAsyncError from "./catchAsyncError.js";
 import User from "../models/User.js";
@@ -10,20 +11,26 @@ export const SetAuthUser = catchAsyncError(async (req, res, next) => {
   }
 
   try {
-    const decoded = Jwt.verify(token, process.env.JWT_SECRET || "DEFAULT_SECRET");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     if (!decoded) {
       return next();
     }
 
     const user = await User.findById(decoded.id).populate("manageList");
+   
     res.locals.user = user;
   } catch (error) {
-    // If there's an error with JWT verification or fetching user data, proceed without setting the user.
+    if (error instanceof jwt.TokenExpiredError) {
+      return next(new errorHandler("Token has expired", 401));
+    }
+
+    // If there's any other error with JWT verification or fetching user data, proceed without setting the user.
     console.error("Error while authenticating user:", error);
   }
 
   next();
 });
+
 
 export const authMiddleware  = catchAsyncError(async (_, res, next) => {
   const { user } = res.locals;

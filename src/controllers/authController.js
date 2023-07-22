@@ -50,11 +50,13 @@ const login = catchAsyncError(async (req, res, next) => {
   if (!email || !password) {
     return next(new errorHandler("Email and Password are required", 400));
   }
+ 
 
-  const user = await User.findOne({ email }).populate("department manageList");
+  const user = await User.findOne({ email }).select("+password").populate("department manageList");
   if (!user) {
     return next(new errorHandler("User not found", 400));
   }
+
 
   const passwordMatches = await bcryptjs.compare(password, user.password);
   if (!passwordMatches) {
@@ -67,13 +69,20 @@ const login = catchAsyncError(async (req, res, next) => {
 
 // ADMIN REGISTER USER
 const registerUser = catchAsyncError(async (req, res, next) => {
-  const { username, email, departmentId, role, seeOnly } = req.body;
+  const { username, email, department, role, seeOnly } = req.body;
+
+  // Check if the email already exists in the database
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    return next(new errorHandler(`Email '${email}' is already taken`, 400));
+  }
+
   const fields = { username, email, role };
 
   if (role === "user") {
-    const deptFound = await Department.findById(departmentId);
+    const deptFound = await Department.findById(department);
     if (!deptFound) {
-      return next(new errorHandler(`Department with ID: ${departmentId} does not exist`, 400));
+      return next(new errorHandler(`Department with ID: ${department} does not exist`, 400));
     }
     fields.department = deptFound._id;
   }
@@ -90,7 +99,7 @@ const registerUser = catchAsyncError(async (req, res, next) => {
   });
   user.password = bcryptjs.hashSync(pass);
   await user.save();
-  await Department.findByIdAndUpdate(departmentId, {
+  await Department.findByIdAndUpdate(department, {
     $pull: {
       users: user._id,
     },
