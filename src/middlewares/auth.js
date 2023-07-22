@@ -9,36 +9,47 @@ export const SetAuthUser = catchAsyncError(async (req, res, next) => {
     return next();
   }
 
-  const decoded = Jwt.verify(token,String(process.env.JWT_SECRET)||"SECRET_XXX");
-  if (!decoded) {
-    return next();
-  }
-  const user = await User.findById(decoded?.id).populate("manageList");
+  try {
+    const decoded = Jwt.verify(token, process.env.JWT_SECRET || "DEFAULT_SECRET");
+    if (!decoded) {
+      return next();
+    }
 
-  res.locals.user = user;
+    const user = await User.findById(decoded.id).populate("manageList");
+    res.locals.user = user;
+  } catch (error) {
+    // If there's an error with JWT verification or fetching user data, proceed without setting the user.
+    console.error("Error while authenticating user:", error);
+  }
 
   next();
-  // 9lhdlB
 });
-export const authMiddleware = catchAsyncError(async (_, res, next) => {
+
+export const authMiddleware  = catchAsyncError(async (_, res, next) => {
   const { user } = res.locals;
   if (!user) {
     return next(new errorHandler("Please login again", 401));
   }
 
-  return next();
+  next();
 });
 
 export const authorizeRoles = (...roles) => {
   return (_, res, next) => {
-    if (!roles.includes(res.locals.user.role)) {
+    const { user } = res.locals;
+    if (!user) {
+      return next(new errorHandler("Please login to access this route", 401));
+    }
+
+    if (!roles.includes(user.role)) {
       return next(
         new errorHandler(
-          `Role ${res.locals.user.role} is not allowed to access this route`,
+          `Role ${user.role} is not allowed to access this route`,
           403
         )
       );
     }
+
     next();
   };
 };

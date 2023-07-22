@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import validator from "validator";
+
 const UserSchema = new mongoose.Schema(
   {
     username: {
@@ -28,13 +29,12 @@ const UserSchema = new mongoose.Schema(
         ref: "Department",
       },
     ],
-  
     role: {
       type: String,
       default: "user",
       enum: {
         values: ["admin", "user", "director"],
-        message: "Please select the a valid role.",
+        message: "Please select a valid role.",
       },
     },
     department: {
@@ -44,16 +44,16 @@ const UserSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-UserSchema.pre("init", async function (document) {
-  if (document.role !== "director") {
-    document.managelist = undefined;
-    
 
-  } else if (document.role == "director" || document.role === "admin") {
-    document.department = undefined;
+UserSchema.pre("save", async function (next) {
+  if (this.role !== "director") {
+    this.manageList = undefined;
+  } else if (this.role === "director" || this.role === "admin") {
+    this.department = undefined;
   }
- 
-}); 
+  next();
+});
+
 const User = mongoose.model("User", UserSchema);
 
 export default User;
