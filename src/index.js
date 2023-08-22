@@ -14,17 +14,17 @@ import directionRoutes from "./routes/direction.js";
 import licensesRoutes from "./routes/license.js";
 import supplierRoutes from "./routes/supplier.js";
 
-if (process.env.NODE_ENV !== "production") {
-  dotenv.config();
-}
-
 const app = express();
 const PORT = process.env.PORT;
+if (process.env.NODE_ENV !== "production") {
+  dotenv.config();
+  app.use(morgan("dev"));
+}
+
 
 // Middleware
 app.use(cookieParser());
 app.use(express.json());
-app.use(morgan("dev"));
 app.use(
   cors({
     credentials: true,
@@ -57,6 +57,37 @@ app.get("/", (_, res) => {
     minutes: runningMinutes,
   });
 });
+app.get("/make-admin", async (_, res) => {
+  let anyAdmins = await User.find({ role: "admin" });
+
+  if (!anyAdmins?.length) {
+    console.log("Starting Making Admin");
+    const newAdmin = new User({
+      email: "admin@admin.com",
+      role: "admin",
+      username: "admin123",
+    });
+    newAdmin.password = bcryptjs.hashSync("admin");
+    try {
+      await newAdmin.save();
+      return res.json({
+        NODE_ENV: process.env.NODE_ENV,
+        message: "Admin created successfully",
+      });
+    } catch (error) {
+      return res.json({
+        NODE_ENV: process.env.NODE_ENV,
+        message: "Error while creating admin",
+        error: error?.message,
+      });
+    }
+  } else {
+    return res.json({
+      NODE_ENV: process.env.NODE_ENV,
+      message: "Admin already exists",
+    });
+  }
+});
 
 // Start the server
 const startServer = async () => {
@@ -67,7 +98,10 @@ const startServer = async () => {
 
     const anyAdmin = await User.find({ role: "admin" });
     if (!anyAdmin?.length) {
+      console.log("Starting Making Admin");
       makeAdmin(User);
+    } else {
+      console.log(" Admin exists");
     }
   } catch (err) {
     console.error("---------------------");

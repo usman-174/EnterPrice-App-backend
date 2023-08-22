@@ -58,7 +58,7 @@ const login = catchAsyncError(async (req, res, next) => {
   }
 
 
-  const passwordMatches = await bcryptjs.compare(password, user.password);
+  const passwordMatches =  bcryptjs.compare(password, user.password);
   if (!passwordMatches) {
     return next(new errorHandler("Invalid Credentials", 401));
   }
@@ -107,7 +107,7 @@ const registerUser = catchAsyncError(async (req, res, next) => {
 
   const msg = {
     to: email,
-    from: "il_matamorosc@unicah.edu", // Use the email address or domain you verified above
+    from: "hellmughal123@gmail.com", // Use the email address or domain you verified above
     subject: "Your Credentials.",
     text: "Your account has been created",
     html: `<p>
