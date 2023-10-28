@@ -26,6 +26,9 @@
     "nodemailer": "^6.9.4",
     "validator": "^13.9.0"
   },
+    "engines": {
+    "node": ">=14.20.1"
+  },
   "devDependencies": {
     "nodemon": "^2.0.16"
   }
